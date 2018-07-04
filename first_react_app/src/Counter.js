@@ -1,43 +1,50 @@
 import React, { Component } from 'react';
+import CounterStore from './stores/CounterStore.js'
+import * as Actions from './Actions.js'
 
 class Counter extends Component {
 
   constructor(props) {
-    console.log('enter constructor: ' + props.caption)
+
     super(props);
 
     this.onClickIncrementButton = this.onClickIncrementButton.bind(this)
     this.onClickDecrementButton = this.onClickDecrementButton.bind(this)
-    this.updateCount = this.updateCount.bind(this)
+    this.onChange = this.onChange.bind(this)
+
     this.state = {
-      count: props.initValue
+      count: CounterStore.getCounterValues()[props.caption]
     }
-  }
-
-
-  onClickIncrementButton() {
-    this.updateCount(true)
-  }
-
-  onClickDecrementButton() {
-    this.updateCount(false)
-  }
-  //更新数据的条件
-  updateCount(isIncrement) {
-    const previousValue = this.state.count
-    const newValue = isIncrement? previousValue + 1: previousValue - 1
-
-    this.setState({count: newValue})
-    this.props.onUpdate(newValue, previousValue)
   }
 
   shouldComponentUpdate(nextProps, nextState) {
     return (nextProps.caption !== this.props.caption) ||
            (nextState.count !== this.state.count);
   }
+  componentDidMount() {
+    CounterStore.addChangeListener(this.onChange)
+  }
+  componentWillUnmount() {
+    CounterStore.removeChangeListener(this.onChange)
+  }
+
+  onClickIncrementButton() {
+    Actions.increment(this.props.caption)
+  }
+
+  onClickDecrementButton() {
+    Actions.decrement(this.props.caption)
+  }
+  //更新数据的条件
+  onChange(isIncrement) {
+    const newCount = CounterStore.getCounterValues()[this.props.caption]
+
+    this.setState({count: newCount})
+  }
+
+
 
   render() {
-    console.log('enter render ' + this.props.caption)
     const {caption} = this.props;
     return (
       <div>
