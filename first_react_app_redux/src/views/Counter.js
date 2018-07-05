@@ -1,6 +1,6 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
-import store from '../Store.js';
 import * as Actions from '../Actions.js';
 
 const buttonStyle = {
@@ -34,8 +34,8 @@ function Counter(props) {
 }
 
 class CounterContainer extends Component {
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
 
     this.onIncrement = this.onIncrement.bind(this);
     this.onDecrement = this.onDecrement.bind(this);
@@ -45,17 +45,18 @@ class CounterContainer extends Component {
   }
 
   getOwnState() {
+    console.log(this.context);
     return {
-      value: store.getState()[this.props.caption]
+      value: this.context.store.getState()[this.props.caption]
     };
   }
 
   onIncrement() {
-    store.dispatch(Actions.increment(this.props.caption));
+    this.context.store.dispatch(Actions.increment(this.props.caption));
   }
 
   onDecrement() {
-    store.dispatch(Actions.decrement(this.props.caption));
+    this.context.store.dispatch(Actions.decrement(this.props.caption));
   }
 
   onChange() {
@@ -69,11 +70,11 @@ class CounterContainer extends Component {
 
   componentDidMount() {
     //监听action state树中一部分改变
-    store.subscribe(this.onChange);
+    this.context.store.subscribe(this.onChange);
   }
 
   componentWillUnmount() {
-    store.unsubscribe(this.onChange);
+    this.context.store.unsubscribe(this.onChange);
   }
 
   render() {
@@ -84,4 +85,7 @@ class CounterContainer extends Component {
   }
 }
 
+CounterContainer.contextTypes = {
+  store: PropTypes.object
+}
 export default CounterContainer
